@@ -1,0 +1,28 @@
+name: "Build and test"
+
+on:
+  pull_request:
+    branches: ["dev"]
+    types: ["opened"]
+
+jobs:
+  build-and-test:
+    name: "Build and test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run dotnet restore
+        run: dotnet restore
+
+      - name: Run dotnet build
+        run: dotnet build --no-restore
+
+      - name: Run dotnet test
+        run: dotnet test --no-build --verbosity normal
