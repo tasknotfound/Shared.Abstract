@@ -130,6 +130,66 @@ public class OptionalTests
             current.Should()
                 .Be(expected);
         }
+
+        [Fact]
+        public async void MapAsync_OnPresent_MapsValue()
+        {
+            var mappedValue = new TestValue();
+
+            var mapped = await _optional.MapAsync(_ => Task.FromResult(mappedValue));
+
+            mapped.Unwrap()
+                .Should()
+                .Be(mappedValue);
+        }
+
+        [Fact]
+        public async void ThenAsync_OnPresent_MapsValue()
+        {
+            var nextValue = new TestValue();
+            var next = Optional.Of(nextValue);
+
+            var mapped = await _optional.ThenAsync(_ => Task.FromResult(next));
+
+            mapped.Should()
+                .Be(next);
+        }
+
+        [Fact]
+        public async void OrAsync_OnPresent_DoingNothing()
+        {
+            var alternativeValue = new TestValue();
+            var alternative = Optional.Of(alternativeValue);
+
+            var mapped = await _optional.OrAsync(() => Task.FromResult(alternative));
+
+            mapped.Should()
+                .Be(_optional);
+        }
+
+        [Fact]
+        public async void WhenPresentAsync_OnPresent_DoingAction()
+        {
+            const int expected = 1;
+            var current = 0;
+
+            await _optional.WhenPresentAsync(_ => Task.FromResult(current += 1));
+
+            current.Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async void WhenEmptyAsync_OnPresent_DoingNothing()
+        {
+            const int expected = 0;
+            var current = 0;
+
+            await _optional.WhenEmptyAsync(() => Task.FromResult(current += 1));
+
+            current.Should()
+                .Be(expected);
+        }
     }
 
     public class WhenOptionalIsEmpty
@@ -249,6 +309,65 @@ public class OptionalTests
             var current = 0;
 
             _optional.WhenEmpty(() => current += 1);
+
+            current.Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async void MapAsync_OnEmpty_DoingNothing()
+        {
+            var mappedValue = new TestValue();
+
+            var mapped = await _optional.MapAsync(_ => Task.FromResult(mappedValue));
+
+            mapped.Should()
+                .Be(_optional);
+        }
+
+        [Fact]
+        public async void ThenAsync_OnEmpty_DoingNothing()
+        {
+            var nextValue = new TestValue();
+            var next = Optional.Of(nextValue);
+
+            var mapped = await _optional.ThenAsync(_ => Task.FromResult(next));
+
+            mapped.Should()
+                .Be(_optional);
+        }
+
+        [Fact]
+        public async void OrAsync_OnEmpty_MapsOptional()
+        {
+            var alternativeValue = new TestValue();
+            var alternative = Optional.Of(alternativeValue);
+
+            var mapped = await _optional.OrAsync(() => Task.FromResult(alternative));
+
+            mapped.Should()
+                .Be(alternative);
+        }
+
+        [Fact]
+        public async void WhenPresentAsync_OnEmpty_DoingNothing()
+        {
+            const int expected = 0;
+            var current = 0;
+
+            await _optional.WhenPresentAsync(_ => Task.FromResult(current += 1));
+
+            current.Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async void WhenEmptyAsync_OnEmpty_DoingAction()
+        {
+            const int expected = 1;
+            var current = 0;
+
+            await _optional.WhenEmptyAsync(() => Task.FromResult(current += 1));
 
             current.Should()
                 .Be(expected);
