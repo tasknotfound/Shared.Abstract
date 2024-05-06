@@ -13,14 +13,30 @@ public abstract class Optional<T>
     public abstract bool IsEmpty { get; }
 
     public abstract T Unwrap();
+
     public abstract T UnwrapOr(T @default);
+
     public abstract T UnwrapOrElse(Func<T> map);
+
     public abstract T UnwrapOrElseThrow(Func<Exception> map);
 
     public abstract Optional<T> WhenPresent(Action<T> action);
+
     public abstract Optional<T> WhenEmpty(Action action);
 
     public abstract Optional<U> Map<U>(Func<T, U> map);
+
     public abstract Optional<U> Then<U>(Func<T, Optional<U>> map);
+
     public abstract Optional<T> Or(Func<Optional<T>> map);
+
+    public abstract Task<Optional<T>> WhenPresentAsync(Func<T, Task> action);
+
+    public abstract Task<Optional<T>> WhenEmptyAsync(Func<Task> action);
+
+    public abstract Task<Optional<U>> MapAsync<U>(Func<T, Task<U>> map);
+
+    public abstract Task<Optional<U>> ThenAsync<U>(Func<T, Task<Optional<U>>> map);
+
+    public abstract Task<Optional<T>> OrAsync(Func<Task<Optional<T>>> map);
 }
