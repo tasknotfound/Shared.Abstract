@@ -10,3 +10,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Result API in ErrorHandling
 - Optional API in ErrorHandling
+- Common types (Entity, AggregateRoot, ValueObject, DomainEvent) in Primitives
