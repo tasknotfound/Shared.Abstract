@@ -150,6 +150,78 @@ public class ResultTests
             current.Should()
                 .Be(expected);
         }
+
+        [Fact]
+        public async void MapAsync_OnOk_MapsValue()
+        {
+            var mappedValue = new TestValue();
+
+            var mapped = await _result.MapAsync(_ => Task.FromResult(mappedValue));
+
+            mapped.Unwrap()
+                .Should()
+                .Be(mappedValue);
+        }
+
+        [Fact]
+        public async void MapErrorAsync_OnOk_DoingNothing()
+        {
+            var mappedError = new TestError();
+
+            var mapped = await _result.MapErrorAsync(_ => Task.FromResult(mappedError));
+
+            mapped.Unwrap()
+                .Should()
+                .Be(_value);
+        }
+
+        [Fact]
+        public async void ThenAsync_OnOk_MapsResult()
+        {
+            var nextValue = new TestValue();
+            var next = Result.Ok<TestValue, TestError>(nextValue);
+
+            var mapped = await _result.ThenAsync(_ => Task.FromResult(next));
+
+            mapped.Should()
+                .Be(next);
+        }
+
+        [Fact]
+        public async void OrAsync_OnOk_DoingNothing()
+        {
+            var alternativeValue = new TestValue();
+            var alternative = Result.Ok<TestValue, TestError>(alternativeValue);
+
+            var mapped = await _result.OrAsync(_ => Task.FromResult(alternative));
+
+            mapped.Should()
+                .Be(_result);
+        }
+
+        [Fact]
+        public async void WhenOkAsync_OnOk_DoingAction()
+        {
+            const int expected = 1;
+            var current = 0;
+
+            await _result.WhenOkAsync(_ => Task.FromResult(current += 1));
+
+            current.Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async void WhenErrorAsync_OnOk_DoingNothing()
+        {
+            const int expected = 0;
+            var current = 0;
+
+            await _result.WhenErrorAsync(_ => Task.FromResult(current += 1));
+
+            current.Should()
+                .Be(expected);
+        }
     }
 
     public class WhenResultIsError
@@ -292,6 +364,78 @@ public class ResultTests
             var current = 0;
 
             _result.WhenError(_ => current += 1);
+
+            current.Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async void MapAsync_OnError_DoingNothing()
+        {
+            var mappedValue = new TestValue();
+
+            var mapped = await _result.MapAsync(_ => Task.FromResult(mappedValue));
+
+            mapped.UnwrapError()
+                .Should()
+                .Be(_error);
+        }
+
+        [Fact]
+        public async void MapErrorAsync_OnError_MapsError()
+        {
+            var mappedError = new TestError();
+
+            var mapped = await _result.MapErrorAsync(_ => Task.FromResult(mappedError));
+
+            mapped.UnwrapError()
+                .Should()
+                .Be(mappedError);
+        }
+
+        [Fact]
+        public async void ThenAsync_OnError_DoingNothing()
+        {
+            var nextValue = new TestValue();
+            var next = Result.Ok<TestValue, TestError>(nextValue);
+
+            var mapped = await _result.ThenAsync(_ => Task.FromResult(next));
+
+            mapped.Should()
+                .Be(_result);
+        }
+
+        [Fact]
+        public async void OrAsync_OnError_MapsResult()
+        {
+            var alternativeValue = new TestValue();
+            var alternative = Result.Ok<TestValue, TestError>(alternativeValue);
+
+            var mapped = await _result.OrAsync(_ => Task.FromResult(alternative));
+
+            mapped.Should()
+                .Be(alternative);
+        }
+
+        [Fact]
+        public async void WhenOkAsync_OnError_DoingNothing()
+        {
+            const int expected = 0;
+            var current = 0;
+
+            await _result.WhenOkAsync(_ => Task.FromResult(current += 1));
+
+            current.Should()
+                .Be(expected);
+        }
+
+        [Fact]
+        public async void WhenErrorAsync_OnError_DoingAction()
+        {
+            const int expected = 1;
+            var current = 0;
+
+            await _result.WhenErrorAsync(_ => Task.FromResult(current += 1));
 
             current.Should()
                 .Be(expected);
